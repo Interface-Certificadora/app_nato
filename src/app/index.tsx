@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, _Text, Button } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Api from "@/api/service";
+import * as Device from 'expo-device';
 import { useDataSave } from "@/database/useDataSave";
 
 export default function HomeScreen() {
@@ -33,6 +34,13 @@ export default function HomeScreen() {
       }
       const req = await Api.getOne(cpf);
       console.log("🚀 ~ handleRequest ~ res:", req)
+      console.log("🚀 ", Device.brand ) // Android: "google", "xiaomi"; iOS: "Apple"; web: null
+      console.log("🚀 ", Device.deviceName ) // "Vivian's iPhone XS"
+      console.log("🚀 ", Device.deviceType )  // UNKNOWN, PHONE, TABLET, TV, DESKTOP
+      console.log("🚀 ", Device.deviceYearClass ) // ano do aparelho
+      console.log("🚀 ", Device.modelId ) // iOS: "iPhone7,2"; Android: null; web: null
+      console.log("🚀 ", Device.modelName ) // Android: "Pixel 2"; iOS: "iPhone XS Max"; web: "iPhone", null
+      console.log("🚀 ", Device.osVersion )  // Android: "4.0.3"; iOS: "12.3.1"; web: "11.0", "8.1.0"
       db.create(req);
 
     } catch (error) {
