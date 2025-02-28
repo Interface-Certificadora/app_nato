@@ -11,7 +11,7 @@ export function InputCpf({ onResponse, ...rest }: InputCpfProps) {
   const [Mask, setMask] = useState('');
   const style = StyleSheet.create({
     container: {
-      position: 'relative', // Permite posicionar o ícone de forma absoluta
+      position: 'relative', 
       height: 54,
       justifyContent: 'center',
     },
@@ -19,7 +19,7 @@ export function InputCpf({ onResponse, ...rest }: InputCpfProps) {
       position: 'absolute',
       left: 20,
       color: 'gray',
-      zIndex: 1, // Garante que o ícone fique sobre o TextInput
+      zIndex: 1, 
     },
     TextInput: {
       height: 54,
