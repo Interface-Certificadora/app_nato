@@ -3,11 +3,13 @@ import { InputCpf } from "@/components/Input/Cpf";
 import Logo from "@/components/logo";
 import { Link, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, _Text, Button } from "react-native";
+import { View, Text, StyleSheet, _Text, Button, Pressable } from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Api from "@/api/service";
 import * as Device from 'expo-device';
 import { useDataSave } from "@/database/useDataSave";
+
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -68,6 +70,13 @@ export default function HomeScreen() {
         <View style={styles.containerBtn}>
           <Link href="#" style={styles.btn} onPress={handleRequest}>
           <AntDesign name="arrowright" size={50} color="white"/>
+          </Link>
+        </View>
+        <View style={styles.containerBtn}>
+          <Link href={"./screens/Logs"} asChild>
+              <Pressable style={styles.btn}>
+                  <AntDesign name="arrowright" size={50} color="white" />
+              </Pressable>
           </Link>
         </View>
       </View>

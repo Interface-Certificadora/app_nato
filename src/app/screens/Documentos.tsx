@@ -1,60 +1,98 @@
 import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, StyleSheet, Pressable,Image } from "react-native";
+import { Link } from "expo-router"; 
 import Logo from "@/components/logo";
 
 export default function DocumentosScreen() {
-    const navigation = useNavigation();
-
     return (
         <View style={styles.container}>
+          
             <View style={styles.sessionLogo}>
-                <Logo width={80} height={60} />
+                <Logo width={100} height={123}/>
             </View>
 
-            <View>
-                <Text>Escolha o Documento que Deseja Enviar:</Text>
-            </View>
+        
+            <Text style={styles.title}>Escolha o Documento que Deseja Enviar:</Text>
 
+          
             <View style={styles.buttonContainer}>
-                <Button 
-                    title="RG - DNI - CIN" 
-                    onPress={() => navigation.navigate("Regras")} 
-                />
+                <Link href={"./Regras"} asChild>
+                    <Pressable style={styles.button}>
+                        <Image style={styles.icon} source={require("../../../assets/icondoc.png")}  />
+                        <Text style={styles.buttonText}>RG - DNI - CIN</Text>
+                    </Pressable>
+                </Link>
             </View>
 
-            <View>
-                <Text>Não tem Nenhum desses? Sem Problemas! Clique no Botão Abaixo</Text>
-            </View>
+         
+            <Text style={styles.subtitle}>
+                Não tem nenhum desses? Sem Problemas! Clique no botão abaixo:
+            </Text>
 
+           
             <View style={styles.buttonContainer}>
-                <Button 
-                    title="Não tenho nenhum desses documentos" 
-                    onPress={() => navigation.navigate("")} 
-                />
+                <Link href={"./screens/"} asChild>
+                    <Pressable style={styles.button}>
+                        <Image style={styles.icon} source={require("../../../assets/iconpersona.png")} />
+                        <Text style={styles.buttonText}>Não tenho esses Documentos</Text>
+                    </Pressable>
+                </Link>
             </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-
-    container: { flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 6 
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 10,
+        backgroundColor: "#F5F5F5",
+        paddingHorizontal: 20,
     },
-
-
-    sessionLogo: { marginBottom: 20 },
-
-
-    buttonContainer: 
-    {   marginVertical: 10,
-        backgroundColor: "D9D9D9",
+    sessionLogo: {
+        resizeMode: "center",
+        overflow: 'visible',
+        width: 200,
+        alignItems: "center",
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: "bold",
+        textAlign: "center",
+        marginBottom: 10,
+    },
+    subtitle: {
+        fontSize: 28,
+        textAlign: "center",
+        marginVertical: 10,
+    },
+    buttonContainer: {
+        marginVertical: 10,
+        width: "80%",
+    },
+    button: {
+        backgroundColor: "#D9D9D9",
+        padding: 12,
         borderRadius: 12,
-        paddingHorizontal: 2,
-        paddingVertical: 1,
-        gap: 2,
+        alignItems: "center",
+        flexDirection: "row",
+        
     },
+   
+    buttonText: {
+        color: "black",
+        fontSize: 18,
+        fontWeight: "bold",
+        textAlign: "center",
+        flexWrap: 'wrap',  
+        flex: 1,
+    },
+    icon:{
+        width: 30,  
+        height: 30, 
+        justifyContent: 'flex-start',
+        resizeMode: 'contain',  marginRight: 10,
+    }
 });

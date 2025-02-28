@@ -1,36 +1,30 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
+import { Link } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import Logo from "@/components/logo";
-import { RootStackParamList } from "../types/types";
 
 export default function DocumentosScreen() {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
     return (
         <View style={styles.container}>
             <View style={styles.sessionLogo}>
-                <Logo width={80} height={60} />
+                <Logo width={100} height={123}/>
             </View>
 
-            <View>
-                <Text>Regras para Foto Do Documento</Text>
-            </View>
+            <Text style={styles.title}>Regras para Foto do Documento</Text>
 
             <View style={styles.warningContainer}>
-                <Text>Remova o Documento Da Sua Capa Plástica</Text>
-                <Text>Com Ele Aberto, Posicione ele em uma Superfície Plana</Text>
-                <Text>O Documento não pode estar rasurado ou danificado</Text>
+                <Text style={styles.warningText}>Remova o documento da sua capa plástica</Text>
+                <Text style={styles.warningText}>Com ele aberto, posicione-o em uma superfície plana</Text>
+                <Text style={styles.warningText}>O documento não pode estar rasurado ou danificado</Text>
             </View>
 
             <View style={styles.containerBtn}>
-                <TouchableOpacity 
-                    style={styles.btn} 
-                    onPress={() => navigation.navigate("ExemploRG")} 
-                >
-                    <AntDesign name="arrowright" size={50} color="white" />
-                </TouchableOpacity>
+                <Link href="./ExemploRG" asChild>
+                    <Pressable style={styles.btn}>
+                        <AntDesign name="arrowright" size={50} color="white" />
+                    </Pressable>
+                </Link>
             </View>
         </View>
     );
@@ -40,23 +34,38 @@ const styles = StyleSheet.create({
     container: { 
         flex: 1,
         justifyContent: "center",
-        alignItems: "center",
-        gap: 6 
+        
+        gap: 2,
+        paddingHorizontal: 20,
     },
-    sessionLogo: {},
+    sessionLogo: {
+        marginBottom: 20,
+        alignItems: "center",
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: "bold",
+        textAlign: "center",
+        marginBottom: 10,
+    },
     warningContainer: {   
-        color: "#AA1111",
-        gap: 5,
+        gap: 14,
         paddingHorizontal: 10,
+    },
+    warningText: {
+        color: "#AA1111",
+        fontSize: 28,
+        textAlign: "center",
     },
     containerBtn: {
         marginTop: 20,
+        alignItems: 'flex-end'
     },
     btn: {
-        backgroundColor: "blue",
-        padding: 15,
-        borderRadius: 10,
-        alignItems: "center",
-        justifyContent: "center",
+        backgroundColor: "#23CF5C",
+        borderRadius: 50,
+        padding: 7,
+        marginRight: 12
+      
     },
 });
