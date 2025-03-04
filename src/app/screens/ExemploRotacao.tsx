@@ -2,8 +2,21 @@ import Logo from "@/components/logo";
 import { View, Text, Pressable, Image, StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
-
+import * as ScreenOrientation from "expo-screen-orientation";
+import { useEffect } from "react";
 export default function ExemploRotacao() {
+
+
+    useEffect(() => {
+            
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    
+            
+            return () => {
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
+            };
+        }, []);
+
     return (
         <View style={styles.container}>
             
@@ -44,8 +57,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        gap: 20,
-        backgroundColor: "white",
+        gap: 10,
+        backgroundColor: "#FFFFFF",
         paddingHorizontal: 20,
     },
     sessionLogo: {
@@ -62,7 +75,7 @@ const styles = StyleSheet.create({
         color: "#AA1111",
         textAlign: "center",
         fontWeight: "bold",
-        marginBottom: 20,
+        marginBottom: 10,
     },
     iconContainer: {
         alignItems: "center",
@@ -77,12 +90,11 @@ const styles = StyleSheet.create({
         backgroundColor: "#23CF5C",
         borderRadius: 50,
         padding: 6,
-        alignItems: "center",
+        marginRight: 12 
     },
     containerBtn: {
-        width: "100%", 
-        alignItems: "flex-end", 
+        alignItems: "flex-end",
         justifyContent: "flex-end",
-        paddingHorizontal: 20, 
+        width: "100%", 
     },
 });

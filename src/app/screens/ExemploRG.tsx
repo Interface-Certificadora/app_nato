@@ -2,11 +2,23 @@ import React from "react";
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { Link} from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
-
+import * as ScreenOrientation from "expo-screen-orientation";
+import { useEffect } from "react";
 
 
 
 export default function ExemploRG() {
+
+
+      useEffect(() => {
+              
+              ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+      
+              
+              return () => {
+                  ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
+              };
+          }, []);
 
   return (
     <View style={styles.container}>
@@ -36,10 +48,11 @@ export default function ExemploRG() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column",
-    backgroundColor: "#f5f5f5",
-    justifyContent: "center",  
-    alignItems: "center",      
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,     
   },
   headerContainer: {
     justifyContent: "flex-start",
@@ -62,7 +75,6 @@ const styles = StyleSheet.create({
     resizeMode: "contain", // Ajusta a imagem sem cortá-la
   },
   containerBtn: {
-
     alignItems: "flex-end",
     justifyContent: "flex-end",
     width: "100%",
@@ -70,7 +82,7 @@ const styles = StyleSheet.create({
   btn: {
     backgroundColor: "#23CF5C",
     borderRadius: 50,
-    padding: 7,
+    padding: 6,
     marginRight: 12 
 }
 });
