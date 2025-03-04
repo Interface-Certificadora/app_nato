@@ -1,12 +1,26 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Link } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
-
+import * as ScreenOrientation from "expo-screen-orientation";
+import { useEffect } from "react";
 export default function FotoRG() {
+
+
+
+        useEffect(() => {
+                
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+        
+                
+                return () => {
+                    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
+                };
+            }, []);
+
     return (
         <View style={styles.container}>
             
-            <View style={styles.headerContainer}>
+            <View >
                 <Text style={styles.headerText}>
                     Enquadre o Seu Documento na Moldura Abaixo
                 </Text>
@@ -31,7 +45,6 @@ export default function FotoRG() {
                     </Pressable>
                 </Link>
 
-                
             </View>
         </View>
     );
@@ -40,13 +53,11 @@ export default function FotoRG() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#f5f5f5",
+        alignItems: "center",
+        gap: 10,
+        backgroundColor: "#FFFFFF",
         paddingHorizontal: 20,
-    },
-    headerContainer: {
-        marginBottom: 20,
     },
     headerText: {
         fontSize: 24,
@@ -55,39 +66,40 @@ const styles = StyleSheet.create({
     },
     frameContainer: {
         width: 250,
-        height: 450, // Ajuste conforme necessário
+        height: 450,
         borderWidth: 2,
         borderColor: "#000",
         borderRadius: 10,
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#e0e0e0",
-        marginBottom: 20,
+
     },
     buttonContainer: {
-        flexDirection: "row",
         alignItems: "flex-end",
-        justifyContent: "space-between",
         width: "100%",
-        paddingHorizontal: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
     },
     photoBtn: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingHorizontal: 30,
+        paddingVertical: 15,
         borderRadius: 8,
         backgroundColor: "#23CF5C",
         alignItems: "center",
         justifyContent: "center",
-        height: 75,
+        
     },
     photoBtnText: {
         color: "white",
-        fontSize: 24,
+        fontSize: 18,
         fontWeight: "bold",
     },
     btn: {
         backgroundColor: "#23CF5C",
         borderRadius: 50,
-        padding: 10,
+        padding: 6,
+        marginRight: 12 ,
+        marginTop: 16
     },
 });

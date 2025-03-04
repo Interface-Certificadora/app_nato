@@ -1,10 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Link } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import Logo from "@/components/logo";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 export default function DocumentosScreen() {
+
+
+    useEffect(() => {
+            
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    
+            
+            return () => {
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
+            };
+        }, []);
+
     return (
         <View style={styles.container}>
             <View style={styles.sessionLogo}>
@@ -34,8 +47,9 @@ const styles = StyleSheet.create({
     container: { 
         flex: 1,
         justifyContent: "center",
-        
-        gap: 2,
+        alignItems: "center",
+        gap: 10,
+        backgroundColor: "#FFFFFF",
         paddingHorizontal: 20,
     },
     sessionLogo: {
@@ -46,7 +60,6 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: "bold",
         textAlign: "center",
-        marginBottom: 10,
     },
     warningContainer: {   
         gap: 14,
@@ -58,14 +71,15 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     containerBtn: {
-        marginTop: 20,
-        alignItems: 'flex-end'
+        alignItems: "flex-end",
+        justifyContent: "flex-end",
+        width: "100%",
     },
     btn: {
         backgroundColor: "#23CF5C",
         borderRadius: 50,
-        padding: 7,
-        marginRight: 12
-      
+        padding: 6,
+        marginRight: 12, 
+        
     },
 });

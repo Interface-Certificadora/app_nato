@@ -2,8 +2,21 @@ import React from "react";
 import { View, Text, StyleSheet, Pressable,Image } from "react-native";
 import { Link } from "expo-router"; 
 import Logo from "@/components/logo";
-
+import * as ScreenOrientation from "expo-screen-orientation";
+import { useEffect } from "react";
 export default function DocumentosScreen() {
+
+
+        useEffect(() => {
+                
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+        
+                
+                return () => {
+                    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
+                };
+            }, []);
+
     return (
         <View style={styles.container}>
           
@@ -48,7 +61,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         gap: 10,
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#FFFFFF",
         paddingHorizontal: 20,
     },
     sessionLogo: {
@@ -69,8 +82,9 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     buttonContainer: {
-        marginVertical: 10,
-        width: "80%",
+        alignItems: "flex-end",
+        justifyContent: "flex-end",
+        width: "100%",
     },
     button: {
         backgroundColor: "#D9D9D9",
