@@ -1,7 +1,8 @@
 import axios from 'axios';
 
+
 const Request = axios.create({
-  baseURL: 'http://24.152.37.153:7878',
+  baseURL: 'https://apinatoapp.redebrasilrp.com.br',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,12 +13,18 @@ const Api = {
   async getOne(cpf: string) {
     try {
       const req = await Request.get(`/cliente/cpf/${cpf}`);
-      const data = req.data;
-      return data;
-    } catch (error) {
-      return error;
+      return req.data;
+    } catch (error: any) {
+      if (error.response) {
+        return { error: true, status: error.response.status, data: error.response.data };
+      } else if (error.request) {
+        return { error: true, message: "Sem resposta do servidor" };
+      } else {
+        return { error: true, message: error.message };
+      }
     }
-  },
+  }
+  ,
 };
 
 export default Api;
