@@ -1,41 +1,40 @@
 import * as FileSystem from "expo-file-system";
 
 export async function uploadDocumento(
-  numeroDocumento: string,
-  arquivoDocumento: string,
-  clienteId: number,
-  tipoDocumento: string,
-  validade: string
+  arquivoDocumento: string | FormData,
+  clienteId: number
 ): Promise<any> {
-  console.log("📤 Iniciando upload do documento...");
-
   try {
-
-    const fileInfo = await FileSystem.getInfoAsync(arquivoDocumento);
-    if (!fileInfo.exists) {
-      throw new Error("O arquivo de documento não existe no caminho especificado.");
+    let formData: FormData;
+    
+    if (typeof arquivoDocumento === 'string') {
+      
+      const uriParts = arquivoDocumento.split('.');
+      const fileType = uriParts[uriParts.length - 1];
+      
+      let mimeType = 'image/jpeg'; // padrão
+      if (fileType.toLowerCase() === 'png') {
+        mimeType = 'image/png';
+      } else if (fileType.toLowerCase() === 'pdf') {
+        mimeType = 'application/pdf';
+      }
+      
+      formData = new FormData();
+      formData.append("file", {
+        uri: arquivoDocumento,
+        name: `documento_${clienteId}.${fileType}`,
+        type: mimeType,
+      } as any);
+      
+      formData.append("metadata", JSON.stringify({ clienteId })); 
+    } else {
+      
+      formData = arquivoDocumento;
     }
 
-   
-    const metadata = JSON.stringify({
-      userId: clienteId,
-     
-  
-      validade: validade,
-      arquivoDocumento: arquivoDocumento, 
-    });
+    console.log(" Enviando arquivo para a API...");
 
-    const formData = new FormData();
-    formData.append("file", {
-      uri: arquivoDocumento,
-      name: `documento_${clienteId}.jpg`,
-      type: "image/jpeg",
-    } as any);
-    formData.append("metadata", metadata);
-
-    console.log("📡 Enviando arquivo para a API...");
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/documento`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/document`, {
       method: "POST",
       body: formData,
       headers: {
@@ -43,14 +42,16 @@ export async function uploadDocumento(
       },
     });
 
+    console.log(response.json());
+
     if (!response.ok) {
-      throw new Error(`❌ Erro no upload: ${response.status} - ${await response.text()}`);
+      throw new Error(` Erro no upload: ${response.status} - ${await response.text()}`);
     }
 
-    console.log("✅ Upload do documento bem-sucedido!");
+    console.log(" Upload do documento bem-sucedido!");
     return await response.json();
   } catch (error) {
-    console.error("❌ Erro ao enviar o documento:", error);
+    console.error(" Erro ao enviar o documento:", error);
     throw error;
   }
 }

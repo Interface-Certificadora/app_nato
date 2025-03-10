@@ -8,7 +8,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Logs() {
   const [cliente, setCliente] = useState<any>(null);
 
-  // Bloqueia a orientação para retrato
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     return () => {
@@ -16,7 +15,7 @@ export default function Logs() {
     };
   }, []);
 
-  // Busca os dados do cliente armazenados localmente
+
   useEffect(() => {
     async function buscarCliente() {
       try {
@@ -34,7 +33,6 @@ export default function Logs() {
     buscarCliente();
   }, []);
 
-  // Formata o telefone (Ex: +55 99999-9999)
   const formatarTelefone = (numero: string) => {
     if (!numero || numero.length !== 11) return numero;
     const ddd = numero.substring(0, 2);
@@ -43,7 +41,6 @@ export default function Logs() {
     return `+${ddd} ${parte1}-${parte2}`;
   };
 
-  // Formata a data para dd/mm/yyyy
   const formatarData = (data: string) => {
     if (!data) return data;
     return data.split("T")[0].split("-").reverse().join("/");
@@ -53,7 +50,7 @@ export default function Logs() {
     <View style={styles.container}>
       <Text style={styles.text}>Informações do Cliente</Text>
 
-      {/* Caso não encontre o cliente, exibe um aviso */}
+
       {!cliente ? (
         <Text style={styles.warningText}>Nenhum cliente encontrado.</Text>
       ) : (

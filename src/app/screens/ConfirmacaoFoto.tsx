@@ -1,4 +1,3 @@
-// ConfirmacaoFoto.tsx
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -12,25 +11,24 @@ export default function ConfirmacaoFoto() {
   const [cliente, setCliente] = useState<any>(null);
   const [finalUri, setFinalUri] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function carregarCliente() {
-      try {
-        const clienteJson = await AsyncStorage.getItem("cliente");
-        if (clienteJson) {
-          setCliente(JSON.parse(clienteJson));
-        } else {
-          Alert.alert("Erro", "Nenhum cliente encontrado no armazenamento local.");
-        }
-      } catch (error) {
-        console.error("Erro ao obter cliente:", error);
+  async function carregarCliente() {
+    try {
+      const clienteJson = await AsyncStorage.getItem("cliente");
+      if (clienteJson) {
+        setCliente(JSON.parse(clienteJson));
+      } else {
+        Alert.alert("Erro", "Nenhum cliente encontrado no armazenamento local.");
       }
+    } catch (error) {
+      console.error("Erro ao obter cliente:", error);
     }
+  }
+  useEffect(() => {
     carregarCliente();
   }, []);
 
   useEffect(() => {
     if (photoUri) {
-      // A URI já é persistente (FileSystem.documentDirectory)
       setFinalUri(photoUri);
     }
   }, [photoUri]);
@@ -46,7 +44,7 @@ export default function ConfirmacaoFoto() {
     }
 
     try {
-      // Verifica se o arquivo existe
+
       const fileInfo = await FileSystem.getInfoAsync(finalUri);
       if (!fileInfo.exists) {
         Alert.alert("Erro", "O arquivo de imagem não existe.");

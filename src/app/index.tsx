@@ -4,7 +4,6 @@ import { Link, useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as Device from "expo-device";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import Abertura from "@/components/abertura";
 import { InputCpf } from "@/components/Input/Cpf";
 import Logo from "@/components/logo";
@@ -29,7 +28,6 @@ export default function HomeScreen() {
     return <Abertura />;
   }
 
-  // Salva os dados do cliente no AsyncStorage
   async function salvarCliente(cliente: any) {
     try {
       await AsyncStorage.setItem("cliente", JSON.stringify(cliente));
@@ -39,7 +37,6 @@ export default function HomeScreen() {
     }
   }
 
-  // Obtém os dados do cliente a partir do CPF
   async function handleRequest() {
     try {
       if (!cpf) {

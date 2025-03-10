@@ -33,9 +33,13 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
 
   const handleFaceDetected = async () => {
     if (!cameraRef.current || stage !== "detecting") return;
+
     try {
       console.log("Rosto detectado! Capturando foto...");
       const photo = await cameraRef.current.takePictureAsync({ quality: 1, base64: false });
+      if(!photo){
+        return alert('Foto nao encontrada')
+      }
       if (photo.uri) {
         const filePath = `${FileSystem.documentDirectory}biometria.jpg`;
         await FileSystem.copyAsync({ from: photo.uri, to: filePath });
