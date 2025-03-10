@@ -2,6 +2,7 @@
   "expo": {
     "name": "app_nato",
     "slug": "app_nato",
+    "scheme": "appnato",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",

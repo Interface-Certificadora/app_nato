@@ -6,10 +6,9 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function ExemploFacial() {
     useEffect(() => {
-        // Bloqueia a tela no modo paisagem (deitada)
+   
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
 
-        // Restaura a orientação ao sair da tela
         return () => {
             ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
         };

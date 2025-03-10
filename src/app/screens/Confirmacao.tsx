@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 export default function Confirmacao({ }) {
-  const fotoClienteUri = route?.params?.fotoClienteUri;
-  const fotoDocumentoUri = route?.params?.fotoDocumentoUri;
+  const fotoClienteUri = null;
+  const fotoDocumentoUri = null;
 
   return (
     <View style={styles.container}>
