@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { uploadDocumento } from "@/api/documento/uploadfoto";
+import { uploadDocumento } from "@/api/documento/upload";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 
@@ -14,6 +14,16 @@ export default function FotoRG() {
     const cameraRef = useRef<CameraView | null>(null);
     const [clienteId, setClienteId] = useState<number | null>(null);
     const router = useRouter();
+
+
+    async function saveImage(imagem: any) {
+        try {
+          await AsyncStorage.setItem("documento", JSON.stringify(imagem));
+          console.log("imagem salva localmente!");
+        } catch (error) {
+          console.error("Erro ao salvar imagem:", error);
+        }
+    }
 
     async function carregarCliente() {
         try {
@@ -36,30 +46,23 @@ export default function FotoRG() {
         requestGalleryPermission();
     }, []);
 
-    // Função para criar FormData diretamente sem usar FileSystem
     const createFormDataFromUri = (uri: string, clientId: number): FormData => {
-        // Determina o tipo MIME baseado na extensão do arquivo
         const uriParts = uri.split('.');
         const fileType = uriParts[uriParts.length - 1];
         
-        let mimeType = 'image/jpeg'; // padrão
+        let mimeType = 'image/jpeg';
         if (fileType.toLowerCase() === 'png') {
             mimeType = 'image/png';
         } else if (fileType.toLowerCase() === 'pdf') {
             mimeType = 'application/pdf';
         }
-        
-        // Criar um FormData para envio multipart/form-data
+
         const formData = new FormData();
-        
-        // Anexar o arquivo ao FormData
-        formData.append('file', {
+            formData.append('file', {
             uri: uri,
             name: `documento_${clientId}.${fileType}`,
             type: mimeType,
         } as any);
-        
-        // Anexar o ID do cliente como metadata
         formData.append('metadata', JSON.stringify({ clienteId: clientId }));
         
         return formData;
@@ -70,12 +73,11 @@ export default function FotoRG() {
             Alert.alert("Erro", "ID do cliente não encontrado ou câmera não inicializada.");
             return;
         }
-
         try {
             console.log("📸 Capturando foto...");
             const photo = await cameraRef.current.takePictureAsync({ 
-                quality: 1,
-                exif: false // Desativar dados EXIF para simplificar
+                quality: 0.6,
+                exif: false 
             });
 
             if (!photo || !photo.uri) {
@@ -86,22 +88,21 @@ export default function FotoRG() {
             console.log("Foto capturada:", photoUri);
             
             try {
-                // Salvar na galeria (não essencial para o funcionamento, então em bloco try separado)
+                
                 await MediaLibrary.createAssetAsync(photoUri);
                 console.log("Foto salva na galeria");
+                await saveImage(photoUri)
             } catch (galleryError) {
                 console.warn("Não foi possível salvar na galeria, continuando mesmo assim:", galleryError);
             }
 
-            // Criar FormData diretamente sem usar FileSystem
             const formData = createFormDataFromUri(photoUri, clienteId);
-            console.log("📤 FormData criado para envio");
+            console.log("FormData criado para envio");
             
-            // Enviar o FormData diretamente para a API
             await uploadDocumento(formData, clienteId);
-            console.log("✅ Documento enviado com sucesso!");
+            console.log("Documento enviado com sucesso!");
 
-            router.push({ pathname: "./ExemploFacial", params: { photoUri: photoUri } });
+            router.push({ pathname: "./ExemploRotacao"});
         } catch (error) {
             Alert.alert("Erro", "Falha no processo de captura ou envio.");
             console.error("Erro ao capturar ou enviar foto:", error);
@@ -115,13 +116,13 @@ export default function FotoRG() {
         }
 
         try {
-            console.log("📂 Abrindo seletor de imagem...");
+            console.log("Abrindo seletor de imagem...");
             
             const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images, // Apenas imagens
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
-                quality: 1,
-                exif: false // Desativar dados EXIF para simplificar
+                quality: 0.6,
+                exif: false
             });
 
             if (result.canceled || !result.assets || result.assets.length === 0) {
@@ -136,12 +137,9 @@ export default function FotoRG() {
 
             const mediaUri = selectedAsset.uri;
             console.log("📁 Imagem selecionada:", mediaUri);
-
-            // Criar FormData diretamente sem usar FileSystem
             const formData = createFormDataFromUri(mediaUri, clienteId);
             console.log("📤 FormData criado para envio");
-            
-            // Enviar o FormData diretamente para a API
+
             await uploadDocumento(formData, clienteId);
             console.log("✅ Upload da imagem da galeria realizado com sucesso!");
 
@@ -152,7 +150,6 @@ export default function FotoRG() {
         }
     };
 
-    // Verificação e solicitação de permissões
     useEffect(() => {
         (async () => {
             const { status: imagePickerStatus } = 

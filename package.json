@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -17,14 +17,15 @@
     "@types/formidable": "^3.4.5",
     "@types/next": "^9.0.0",
     "axios": "^1.7.9",
-    "expo": "^52.0.37",
+    "expo": "^52.0.38",
     "expo-asset": "^11.0.4",
-    "expo-camera": "~16.0.17",
+    "expo-camera": "~16.0.18",
     "expo-constants": "~17.0.7",
     "expo-device": "~7.0.2",
     "expo-face-detector": "~13.0.2",
     "expo-file-system": "~18.0.11",
     "expo-image": "~2.0.6",
+    "expo-image-manipulator": "~13.0.6",
     "expo-image-picker": "~16.0.6",
     "expo-linking": "~7.0.5",
     "expo-media-library": "~17.0.6",
@@ -49,7 +50,8 @@
     "react-native-svg-transformer": "^1.5.0",
     "react-native-vision-camera": "^4.6.4",
     "react-native-vision-camera-face-detector": "^1.8.1",
-    "remask": "^1.2.2"
+    "remask": "^1.2.2",
+    "vision-camera-face-detector": "^0.1.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

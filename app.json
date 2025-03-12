@@ -20,15 +20,26 @@
       "customBuildFlags": [
         "-DSQLITE_ENABLE_DBSTAT_VTAB=1",
         "-DSQLITE_ENABLE_SNAPSHOT=1"
-      ]
+      ],
+      "infoPlist": {
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
+        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
+      },
+      "bundleIdentifier": "com.interface.appnato"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "enableFTS": false,
-        "useSQLCipher": false
-      }
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.interface.appnato"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -50,9 +61,16 @@
           "recordAudioAndroid": true
         }
       ],
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+          "enableMicrophonePermission": true,
+          "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
+        }
+      ],
       "expo-router",
-      "expo-sqlite",
-      "react-native-vision-camera"
+      "expo-sqlite"
     ],
     "permissions": [
       "CAMERA"
