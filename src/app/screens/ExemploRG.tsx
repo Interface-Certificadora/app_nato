@@ -67,12 +67,12 @@ const styles = StyleSheet.create({
   imageContainer: {
     justifyContent: "center",
     alignItems: "center",
-    marginVertical: 20,  // Espaçamento entre o texto e a imagem
+    marginVertical: 20, 
   },
   image: {
-    width: 300,          // Define uma largura fixa para a imagem
-    height: 450,         // Define uma altura fixa para a imagem
-    resizeMode: "contain", // Ajusta a imagem sem cortá-la
+    width: 300,          
+    height: 450,         
+    resizeMode: "contain", 
   },
   containerBtn: {
     alignItems: "flex-end",
