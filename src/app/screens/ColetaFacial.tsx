@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text, Image, TouchableOpacity, Alert, Dimensions, StatusBar } from "react-native";
 import { useRouter } from "expo-router";
 import BiometriaCanComponent from "@/components/biometria/camera";
+import Rotation from "@/components/biometria/Rotation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { uploadBio } from "@/api/biometria/upload";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -12,6 +13,7 @@ export default function ColetaFacial() {
   const [clienteId, setClienteId] = useState(null);
   const router = useRouter();
   
+  // Garantir que o componente esteja travado na horizontal durante todo seu ciclo de vida
   useEffect(() => {
     const lockOrientation = async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
@@ -19,7 +21,9 @@ export default function ColetaFacial() {
     
     lockOrientation();
     StatusBar.setHidden(true); // Esconder a barra de status
-      return () => {
+    
+    // Liberar o travamento quando o componente for desmontado
+    return () => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
       StatusBar.setHidden(false); // Restaurar a barra de status
     };

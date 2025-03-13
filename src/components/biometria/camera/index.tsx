@@ -13,7 +13,7 @@ type BiometriaCanProps = {
 export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanProps) {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
-  const [stage, setStage] = useState<"detecting" | "capturing" | "success" | "error">("detecting");
+  const [stage, setStage] = useState<"detecting" | "error">("detecting");
   const [clienteId, setClienteId] = useState<number | null>(null);
   let tipoBiometria: string | null = "facial";
 
@@ -57,17 +57,14 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
       return;
     }
 
-    setStage("capturing");
-    
     try {
       console.log("Rosto detectado! Capturando foto...");
       const photo = await cameraRef.current.takePictureAsync({ 
-        quality: 0.8, // Higher quality for the actual saved photo
+        quality: 0.6,
         exif: false 
       });
 
       if (!photo) {
-        setStage("error");
         return Alert.alert("Erro", "Foto não encontrada");
       }
 
@@ -75,22 +72,13 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
         await MediaLibrary.createAssetAsync(photo.uri);
         console.log("Foto salva na galeria");
         await saveImage(photo.uri);
-        setStage("success");
-        
-        // Pequeno delay para mostrar a mensagem de sucesso
-        setTimeout(() => {
-          onFinishProcess();
-        }, 1000);
       } catch (galleryError) {
         console.warn("Não foi possível salvar na galeria, continuando mesmo assim:", galleryError);
-        await saveImage(photo.uri);
-        setStage("success");
-        
-        // Pequeno delay para mostrar a mensagem de sucesso
-        setTimeout(() => {
-          onFinishProcess();
-        }, 1000);
       }
+
+      // Após capturar e salvar a foto, notificamos a tela principal
+      onFinishProcess();
+      
     } catch (error) {
       console.warn("Erro ao capturar foto:", error);
       setStage("error");
@@ -109,11 +97,7 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
     <View style={styles.container}>
       {stage === "detecting" && (
         <>
-          <CameraView 
-            ref={cameraRef} 
-            style={styles.camera}
-            facing="front"
-          />
+          <CameraView ref={cameraRef} style={styles.camera} />
           <FaceDetection
             cameraRef={cameraRef}
             containerLayout={{ width: 420, height: 300 }}
@@ -121,18 +105,6 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
           />
           <FaceOutline />
         </>
-      )}
-
-      {stage === "capturing" && (
-        <View style={styles.messageContainer}>
-          <Text style={styles.messageText}>Capturando biometria...</Text>
-        </View>
-      )}
-      
-      {stage === "success" && (
-        <View style={styles.messageContainer}>
-          <Text style={styles.successText}>Biometria capturada com sucesso!</Text>
-        </View>
       )}
 
       {stage === "error" && (
@@ -150,7 +122,7 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: "#000000" 
+    backgroundColor: "#000" 
   },
   camera: { 
     flex: 1 
@@ -163,20 +135,6 @@ const styles = StyleSheet.create({
   permissionText: { 
     fontSize: 16, 
     color: "#333" 
-  },
-  messageContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#000"
-  },
-  messageText: {
-    color: "#fff",
-    fontSize: 18
-  },
-  successText: {
-    color: "#4cd964",
-    fontSize: 18
   },
   errorContainer: {
     flex: 1,
@@ -193,6 +151,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     backgroundColor: "#0055ff",
+    minWidth: 150,
     alignItems: "center"
   },
   buttonText: {
