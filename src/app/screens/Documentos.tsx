@@ -1,55 +1,53 @@
-import React from "react";
-import { View, Text, StyleSheet, Pressable,Image } from "react-native";
+import React, { useEffect } from "react";
+import { View, Text, StyleSheet, Pressable, Image, Linking, Alert } from "react-native";
 import { Link } from "expo-router"; 
 import Logo from "@/components/logo";
 import * as ScreenOrientation from "expo-screen-orientation";
-import { useEffect } from "react";
+
 export default function DocumentosScreen() {
+    useEffect(() => {
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+        return () => {
+            ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
+        };
+    }, []);
 
+    const abrirWhatsApp = () => {
+        const telefone = "1632897402";
+        const mensagem = "Não tenho os documentos necessários, você pode me ajudar?";
+        const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
 
-        useEffect(() => {
-                
-                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-        
-                
-                return () => {
-                    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
-                };
-            }, []);
+        Linking.openURL(url).catch(() => {
+            Alert.alert("Erro", "Não foi possível abrir o WhatsApp.");
+        });
+    };
 
     return (
         <View style={styles.container}>
-          
             <View style={styles.sessionLogo}>
-                <Logo width={100} height={123}/>
+                <Logo width={100} height={123} />
             </View>
 
-        
             <Text style={styles.title}>Escolha o Documento que Deseja Enviar:</Text>
 
-          
             <View style={styles.buttonContainer}>
                 <Link href={"./Regras"} asChild>
                     <Pressable style={styles.button}>
-                        <Image style={styles.icon} source={require("../../../assets/icondoc.png")}  />
+                        <Image style={styles.icon} source={require("../../../assets/icondoc.png")} />
                         <Text style={styles.buttonText}>RG - DNI - CIN</Text>
                     </Pressable>
                 </Link>
             </View>
 
-         
             <Text style={styles.subtitle}>
                 Não tem nenhum desses? Sem Problemas! Clique no botão abaixo:
             </Text>
 
-           
             <View style={styles.buttonContainer}>
-                <Link href={"./screens/"} asChild>
-                    <Pressable style={styles.button}>
-                        <Image style={styles.icon} source={require("../../../assets/iconpersona.png")} />
-                        <Text style={styles.buttonText}>Não tenho esses Documentos</Text>
-                    </Pressable>
-                </Link>
+                <Pressable style={styles.button} onPress={abrirWhatsApp}>
+                    <Image style={styles.icon} source={require("../../../assets/iconpersona.png")} />
+                    <Text style={styles.buttonText}>Não tenho esses Documentos</Text>
+                </Pressable>
             </View>
         </View>
     );
@@ -92,9 +90,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: "center",
         flexDirection: "row",
-        
     },
-   
     buttonText: {
         color: "black",
         fontSize: 18,
@@ -103,10 +99,11 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',  
         flex: 1,
     },
-    icon:{
+    icon: {
         width: 30,  
         height: 30, 
         justifyContent: 'flex-start',
-        resizeMode: 'contain',  marginRight: 10,
+        resizeMode: 'contain',
+        marginRight: 10,
     }
 });

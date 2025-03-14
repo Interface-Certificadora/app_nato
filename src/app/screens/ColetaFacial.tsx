@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Text, Image, TouchableOpacity, Alert, Dimensions, StatusBar } from "react-native";
 import { useRouter } from "expo-router";
 import BiometriaCanComponent from "@/components/biometria/camera";
-import Rotation from "@/components/biometria/Rotation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { uploadBio } from "@/api/biometria/upload";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -13,19 +12,19 @@ export default function ColetaFacial() {
   const [clienteId, setClienteId] = useState(null);
   const router = useRouter();
   
-  // Garantir que o componente esteja travado na horizontal durante todo seu ciclo de vida
+
   useEffect(() => {
     const lockOrientation = async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
     };
     
     lockOrientation();
-    StatusBar.setHidden(true); // Esconder a barra de status
+    StatusBar.setHidden(true); 
     
-    // Liberar o travamento quando o componente for desmontado
+
     return () => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
-      StatusBar.setHidden(false); // Restaurar a barra de status
+      StatusBar.setHidden(false);
     };
   }, []);
 
@@ -130,13 +129,14 @@ export default function ColetaFacial() {
             )}
           </View>
           
+          {/* Botões na parte inferior da tela */}
           <View style={styles.overlay}>
             <View style={styles.buttonContainer}>
               <TouchableOpacity 
-                style={styles.confirmationButton} 
+                style={[styles.confirmationButton, styles.retakeButton]} 
                 onPress={handleRetakePhoto}
               >
-                <Text style={styles.buttonText}>Tirar Novamente</Text>
+                <Text style={styles.buttonText}>Tirar Foto Novamente</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
@@ -172,8 +172,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: "center",
-    alignItems: "center"
   },
   previewImage: {
     width: windowWidth,
@@ -186,25 +184,32 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: "flex-end",
-    backgroundColor: "transparent"
+  
+    paddingBottom: 30,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
     width: "100%",
-    paddingBottom: 20,
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
   },
   confirmationButton: {
     padding: 12,
     borderRadius: 8,
-    backgroundColor: "rgba(68, 68, 68, 0.8)",
-    minWidth: 150,
+    minWidth: 180,
     alignItems: "center",
-    margin: 10
+    margin: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  retakeButton: {
+    backgroundColor: "rgba(247, 0, 0, 0.8)",
   },
   primaryButton: {
-    backgroundColor: "rgba(0, 85, 255, 0.8)"
+    backgroundColor: "rgba(12, 138, 10, 0.8)"
   },
   buttonText: {
     color: "#fff",

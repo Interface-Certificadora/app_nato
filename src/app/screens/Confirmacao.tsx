@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 export default function Confirmacao() {
   const [fotoDocumentoUri, setFotoDocumentoUri] = useState<string | null>(null);
@@ -35,6 +36,11 @@ export default function Confirmacao() {
   };
 
   useEffect(() => {
+    const lockOrientation = async () => {
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    };
+    lockOrientation();
+
     carregarImagens();
   }, []);
 
@@ -69,12 +75,18 @@ export default function Confirmacao() {
           </View>
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.buttonReiniciar}>
-              <Link href={"/FotoRG"} style={styles.buttonTextReiniciar}>Reiniciar Coleta</Link>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.buttonConfirmar}>
-            </TouchableOpacity>
-              <Link href={"/Agradecimento"} style={styles.buttonText}>Confirmar e Enviar</Link>
+          <Link href="./FotoRG" asChild>
+    <TouchableOpacity style={styles.buttonReiniciar}>
+      <Text style={styles.buttonTextReiniciar}>Reiniciar Coleta</Text>
+    </TouchableOpacity>
+  </Link>
+
+  {/* Botão de Confirmar e Enviar */}
+  <Link href="./Agradecimento" asChild>
+    <TouchableOpacity style={styles.buttonConfirmar}>
+      <Text style={styles.buttonText}>Confirmar e Enviar</Text>
+    </TouchableOpacity>
+  </Link>
           </View>
         </View>
       </ScrollView>

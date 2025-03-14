@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Alert, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Alert, TouchableOpacity, Image } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import FaceDetection from "../facedetector";
-import FaceOutline from "../FaceOutiline";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as MediaLibrary from "expo-media-library";
+
+const takePictureIcon = require("../../../../assets/takeapicture.png");
 
 type BiometriaCanProps = {
   onFinishProcess: () => void;
@@ -13,9 +13,8 @@ type BiometriaCanProps = {
 export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanProps) {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
-  const [stage, setStage] = useState<"detecting" | "error">("detecting");
   const [clienteId, setClienteId] = useState<number | null>(null);
-  let tipoBiometria: string | null = "facial";
+  const [capturing, setCapturing] = useState(false);
 
   useEffect(() => {
     requestCameraPermission();
@@ -27,7 +26,7 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
   async function saveImage(imagem: any) {
     try {
       await AsyncStorage.setItem("biometria", JSON.stringify(imagem));
-      console.log("imagem salva localmente!");
+      console.log("Imagem salva localmente!");
     } catch (error) {
       console.error("Erro ao salvar imagem:", error);
     }
@@ -39,7 +38,6 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
       if (clienteJson) {
         const clienteData = JSON.parse(clienteJson);
         setClienteId(clienteData.id);
-        tipoBiometria = "facial";
         console.log("Cliente carregado:", clienteData);
       } else {
         Alert.alert("Erro", "Nenhum cliente encontrado no armazenamento local.");
@@ -49,16 +47,17 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
     }
   }
 
-  const handleFaceDetected = async () => {
-    if (!cameraRef.current || stage !== "detecting") return;
-    
-    if (clienteId === null || tipoBiometria === null) {
+  const handleCapturePhoto = async () => {
+    if (!cameraRef.current || capturing) return;
+
+    if (clienteId === null) {
       Alert.alert("Erro", "Os dados do cliente não foram carregados.");
       return;
     }
 
     try {
-      console.log("Rosto detectado! Capturando foto...");
+      setCapturing(true);
+      console.log("Capturando foto...");
       const photo = await cameraRef.current.takePictureAsync({ 
         quality: 0.6,
         exif: false 
@@ -78,10 +77,10 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
 
       // Após capturar e salvar a foto, notificamos a tela principal
       onFinishProcess();
-      
+      setCapturing(false);
     } catch (error) {
       console.warn("Erro ao capturar foto:", error);
-      setStage("error");
+      setCapturing(false);
     }
   };
 
@@ -95,26 +94,12 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
 
   return (
     <View style={styles.container}>
-      {stage === "detecting" && (
-        <>
-          <CameraView ref={cameraRef} style={styles.camera} />
-          <FaceDetection
-            cameraRef={cameraRef}
-            containerLayout={{ width: 420, height: 300 }}
-            onFaceDetected={handleFaceDetected}
-          />
-          <FaceOutline />
-        </>
-      )}
-
-      {stage === "error" && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Ocorreu um erro ao capturar a foto.</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => setStage("detecting")}>
-            <Text style={styles.buttonText}>Tentar novamente</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      <CameraView ref={cameraRef} style={styles.camera} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.captureButton} onPress={handleCapturePhoto}>
+          <Image source={takePictureIcon} style={styles.captureImage} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -136,27 +121,22 @@ const styles = StyleSheet.create({
     fontSize: 16, 
     color: "#333" 
   },
-  errorContainer: {
-    flex: 1,
+  buttonContainer: {
+    position: "absolute",
+    bottom: "50%",
+    right: 20,
+    alignItems: "center",
+  },
+  captureButton: {
+    width: 80,
+    height: 1,
+    borderRadius: 60,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000"
   },
-  errorText: {
-    color: "#ff3b30",
-    fontSize: 18,
-    marginBottom: 20
-  },
-  retryButton: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "#0055ff",
-    minWidth: 150,
-    alignItems: "center"
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500"
+  captureImage: {
+    width: 60,
+    height: 60,
+    tintColor: "#0055ff"
   }
 });
