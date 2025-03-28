@@ -1,35 +1,37 @@
-import Logo from "@/components/logo";
-import { Link } from "expo-router";
-import { View, Text, Pressable, StyleSheet, Image } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image, ScrollView } from "react-native";
+import React from "react";
+import { AntDesign } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+
 
 export default function Error() {
+    const router = useRouter();
     return (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View>
             <View>
-                <Logo />
+                <Image  source={require("../../assets/erro.png")} />
             </View>
 
-            <View>
-                <Text>Desculpa  :-/ ocorreu algum erro durante a consulta.</Text>
+            <View style={styles.gapbox}>
+                <Text style={styles.subtitle}>Desculpa  :-/ ocorreu algum erro durante a consulta.</Text>
+            
+
+          
+                <Text style={styles.title}>Vamos tentar novamente ?</Text>
+         
+
+           
+                <Text style={styles.subtitle} >Clique no botão abaixo para digitar novamente seu CPF e EMAIL.</Text>
             </View>
 
-            <View>
-                <Text>Vamos tentar novamente ?</Text>
-            </View>
-
-            <View>
-                <Text>Clique no botão abaixo para digitar novamente seu CPF e EMAIL.</Text>
-            </View>
-
-            <View>
-                <Link href={"./index"} asChild>
-                    <Pressable style={styles.button}>
-                        <Image style={styles.icon} source={require("../../assets/iconpersona.png")} />
-                        <Text style={styles.buttonText}>Não tenho esses Documentos</Text>
+            <View style={styles.containerBtn}>
+                    <Pressable style={styles.btn} onPress={router.back}>
+                        <AntDesign name="arrowright" size={50} color="white" />
                     </Pressable>
-                </Link>
             </View>
         </View>
+        </ScrollView>
     );
 }
 
@@ -41,19 +43,24 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         backgroundColor: "#f5f5f5",
         paddingHorizontal: 20,
+        
+    },
+    gapbox: {
+        gap: 14,
     },
     sessionLogo: {
         alignItems: "center",
         marginBottom: 20,
     },
     title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 20,
+        fontSize: 35,
+        fontWeight: "condensedBold",
+        textAlign: "center",
     },
     subtitle: {
-        fontSize: 16,
-        marginBottom: 20,
+        fontSize: 25,
+        fontWeight: "regular",
+        textAlign: "center",
     },
     buttonContainer: {
         flexDirection: "row",
@@ -76,5 +83,20 @@ const styles = StyleSheet.create({
     icon: {
         width: 24,
         height: 24,
+    },
+    containerBtn: {
+        marginTop: 20,
+        alignItems: 'flex-start'
+    },
+    btn: {
+        backgroundColor: "#23CF5C",
+        borderRadius: 50,
+        padding: 7,
+        marginLeft: 12,
+        transform: [{ rotate: "180deg" }],
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "center",
     },
 });

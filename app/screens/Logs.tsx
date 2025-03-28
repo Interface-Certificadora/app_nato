@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { 
   View, 
   Text, 
   StyleSheet, 
   Pressable, 
   ActivityIndicator, 
-  Alert 
+  Alert,
+  ScrollView, 
+  RefreshControl
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -23,8 +25,8 @@ export default function Logs() {
   const [docStatus, setDocStatus] = useState<string | null>(null);
   const [docMotivo, setDocMotivo] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const router = useRouter();
-
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
@@ -32,6 +34,18 @@ export default function Logs() {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
     };
   }, []);
+
+  const onRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await buscarCliente();
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      Alert.alert("Erro", "Falha ao atualizar as informações.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [buscarCliente]);
 
   async function buscarCliente() {
     setIsLoading(true);
@@ -72,7 +86,6 @@ export default function Logs() {
   
       console.log("Resposta de biometria:", bioResponse);
       console.log("Resposta de documento:", docResponse);
-      // Lembre que bioStatus e docStatus podem não estar atualizados ainda aqui
     } catch (error) {
       console.error("Erro ao recuperar status:", error);
       Alert.alert("Erro", "Falha ao recuperar status. Por favor, tente novamente.");
@@ -85,7 +98,6 @@ export default function Logs() {
     setIsLoading(false);
   }, []);
 
-
   const formatarTelefone = (numero: string) => {
     if (!numero || numero.length !== 11) return numero;
     const ddd = numero.substring(0, 2);
@@ -93,7 +105,6 @@ export default function Logs() {
     const parte2 = numero.substring(7);
     return `(${ddd}) ${parte1}-${parte2}`;
   };
-
 
   const formatarData = (data: string) => {
     if (!data) return data;
@@ -120,21 +131,29 @@ export default function Logs() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={styles.scrollContentContainer}
+      keyboardShouldPersistTaps="handled"
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+          colors={['#23CF5C']}
+        />
+      }
+    >
       <Text style={styles.title}>Informações do Cliente</Text>
 
       {isLoading ? (
-        // Exibe indicador de carregamento enquanto busca dados
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#23CF5C" />
           <Text style={styles.loadingText}>Carregando informações...</Text>
         </View>
       ) : !cliente ? (
-        // Se não encontrou cliente
         <Text style={styles.warningText}>Nenhum cliente encontrado.</Text>
       ) : (
-        <>
-          {/* Card com dados do cliente */}
+        <View style={styles.contentWrapper}>
           <View style={styles.card}>
             <View style={styles.infoContainer}>
               <Text style={styles.label}>Nome:</Text>
@@ -153,7 +172,6 @@ export default function Logs() {
 
             <View style={styles.divider} />
 
-            {/* Status de verificação */}
             <View style={styles.statusContainer}>
               <Text style={styles.statusTitle}>Status de Verificação:</Text>
 
@@ -173,29 +191,39 @@ export default function Logs() {
             </View>
           </View>
 
-          {/* Exibe motivos de rejeição se houver */}
-          {bioStatus === "REJEITADO" && bioMotivo && (
-            <Text style={styles.warningText}>
-              Motivo da rejeição (Biometria): {bioMotivo}
-            </Text>
-          )}
-          {docStatus === "REJEITADO" && docMotivo && (
-            <Text style={styles.warningText}>
-              Motivo da rejeição (Documento): {docMotivo}
-            </Text>
+          {!(docStatus === "ENVIADO" && bioStatus === "ENVIADO") && (
+            <View style={styles.actionContainer}>
+              <Link href="./Documentos" asChild>
+                <Pressable style={styles.btn}>
+                  <AntDesign name="arrowright" size={50} color="white" />
+                </Pressable>
+              </Link>
+            </View>
           )}
 
-          {/* Botão para ir diretamente à página Documentos */}
-          <View style={styles.actionContainer}>
-            <Link href="./Documentos" asChild>
-              <Pressable style={styles.btn}>
-                <AntDesign name="arrowright" size={50} color="white" />
-              </Pressable>
-            </Link>
+          {/* Rejection Reasons Section */}
+          <View style={styles.rejectionContainer}>
+            {bioStatus === "REJEITADO" && bioMotivo && (
+              <Text style={styles.warningText}>
+                Motivo da rejeição (Biometria): {bioMotivo}
+              </Text>
+            )}
+            {docStatus === "REJEITADO" && docMotivo && (
+              <Text style={styles.warningText}>
+                Motivo da rejeição (Documento): {docMotivo}
+              </Text>
+            )}
+            {docStatus === "ENVIADO" && bioStatus === "ENVIADO" && (
+              <Text style={styles.safeText}>
+                Todos as Imagens foram enviadas, aguarde a ate que suas imagens sejam avaliadas.
+              </Text>
+            )}
           </View>
-        </>
+
+          {/* Navigation Button */}
+        </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -204,8 +232,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F5",
+  },
+  scrollContentContainer: {
+    flexGrow: 1,
     paddingHorizontal: 20,
     paddingVertical: 40,
+  },
+  contentWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
   },
   title: {
     fontSize: 28,
@@ -224,11 +259,20 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   warningText: {
-    fontSize: 20,
+    fontSize: 16,
     color: "red",
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 20,
+    paddingHorizontal: 10,
+  },
+  safeText: {
+    fontSize: 16,
+    color: "green",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 20,
+    paddingHorizontal: 10,
   },
   card: {
     backgroundColor: "white",
@@ -302,10 +346,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     backgroundColor: "#FF3B30",
   },
+  rejectionContainer: {
+    marginBottom: 20,
+  },
   actionContainer: {
     flexDirection: "row",
-    marginTop: 10,
     justifyContent: "flex-end",
+    marginTop: 10,
   },
   btn: {
     backgroundColor: "#23CF5C",

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import Logo from "@/components/logo";
@@ -19,6 +19,7 @@ export default function DocumentosScreen() {
         }, []);
 
     return (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
             <View style={styles.sessionLogo}>
                 <Logo width={100} height={123}/>
@@ -28,7 +29,7 @@ export default function DocumentosScreen() {
 
             <View style={styles.warningContainer}>
                 <Text style={styles.warningText}>Remova o documento da sua capa plástica</Text>
-                <Text style={styles.warningText}>Com ele aberto, posicione-o em uma superfície plana</Text>
+                <Text style={styles.warningText}>Com ele aberto, posicione-o em uma mesa ou superfície plana</Text>
                 <Text style={styles.warningText}>O documento não pode estar rasurado ou danificado</Text>
             </View>
 
@@ -40,6 +41,7 @@ export default function DocumentosScreen() {
                 </Link>
             </View>
         </View>
+        </ScrollView>
     );
 }
 
@@ -81,5 +83,9 @@ const styles = StyleSheet.create({
         padding: 6,
         marginRight: 12, 
         
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "center",
     },
 });

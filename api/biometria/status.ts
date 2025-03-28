@@ -26,11 +26,7 @@ export default async function statusBio(clienteId: number): Promise<StatusRespon
 
     const data: StatusResponse = await response.json();
 
-    return {
-      status: "REJEITADO",
-      motivo: data.motivo,
-    };
-    //return data;
+    return data;
   } catch (error) {
     console.error("Erro ao consultar a biometria:", error);
     return null;

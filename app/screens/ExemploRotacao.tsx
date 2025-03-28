@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Pressable, Image, StyleSheet } from "react-native";
+import { View, Text, Pressable, Image, StyleSheet, ScrollView } from "react-native";
 import { Link, router } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -49,6 +49,7 @@ export default function ExemploRotacao() {
     }, []);
 
     return (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={[styles.container, isLandscape ? styles.containerLandscape : styles.containerPortrait]}>
             {/* Exibe a logo apenas se estiver na vertical */}
             {!isLandscape && (
@@ -72,13 +73,12 @@ export default function ExemploRotacao() {
             </View>
 
             <View style={styles.containerBtn}>
-                
                     <Pressable onPress={missingDoc} style={styles.antbutton}>
                         <AntDesign name="arrowright" size={50} color="white" />
                     </Pressable>
-                
             </View>
         </View>
+    </ScrollView>
     );
 }
 
@@ -147,5 +147,9 @@ const styles = StyleSheet.create({
         position: "absolute",
         bottom: 20,
         right: 20,
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "center",
     },
 });

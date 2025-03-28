@@ -11,9 +11,9 @@ export default function Logo({ width, height, transition }: ImgProps) {
   return (
     <View style={styles.container}>
       <Image
-        style={[ { width: width || 200, height: height || 250 }]}
+        style={[ { width: width || 200, height: height || 100 }]}
         source={require("../../assets/Vector.png")}
-        contentFit="contain"
+        contentFit="cover"
         transition={transition || 1000}
       />
     </View>

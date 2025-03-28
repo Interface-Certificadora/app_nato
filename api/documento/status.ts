@@ -29,12 +29,7 @@ export default async function statusDoc(clienteId: number): Promise<StatusRespon
 
     const data: StatusResponse = await response.json();
 
-    return {
-      status: "REJEITADO",
-      motivo: data.motivo,
-    };
-
-    //return data;
+    return data;
   } catch (error) {
     console.error("Erro ao consultar o documento:", error);
     return null;
