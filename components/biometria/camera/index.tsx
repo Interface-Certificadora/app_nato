@@ -7,10 +7,11 @@ import {
   TouchableOpacity, 
   Image 
 } from "react-native";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as MediaLibrary from "expo-media-library";
-import FaceOutline from "../FaceOutiline";
+import Ionicons from "@expo/vector-icons/build/Ionicons";
+
 
 type BiometriaCanProps = {
   onFinishProcess: () => void;
@@ -23,6 +24,7 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
   const [capturing, setCapturing] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [facing, setFacing] = useState<CameraType>('back');
 
   useEffect(() => {
     (async () => {
@@ -96,6 +98,18 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
     }
   };
 
+  function toggleCameraFacing() {
+    setFacing(current => {
+      // Ao alternar a câmera, cancela qualquer countdown em andamento
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        setCountdown(null);
+        setCapturing(false);
+      }
+      return current === 'back' ? 'front' : 'back';
+    });
+  }
+
   const handleCapturePhoto = () => {
     if (!cameraRef.current || capturing) return;
 
@@ -105,8 +119,15 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
     }
 
     setCapturing(true);
+    
+    // Se for câmera frontal, tira a foto imediatamente
+    if (facing === 'front') {
+      capturePhoto();
+      return;
+    }
+    
+    // Se for câmera traseira, usa o timer de 10 segundos
     setCountdown(10);
-
     timerRef.current = setInterval(() => {
       setCountdown((prevCountdown) => {
         if (prevCountdown !== null) {
@@ -132,18 +153,38 @@ export default function BiometriaCanComponent({ onFinishProcess }: BiometriaCanP
 
   return (
     <View style={styles.container}>
-      <CameraView ref={cameraRef} style={styles.camera} />
+      <CameraView ref={cameraRef} style={styles.camera} facing={facing}/>
+
+      <Image
+        source={require("../../../assets/person.png")} 
+        style={styles.overlayImage}
+      />
+
       {countdown !== null && (
         <View style={styles.countdownContainer}>
           <Text style={styles.countdownText}>Aguardar...  {countdown}</Text>
         </View>
       )}
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.captureButton} onPress={handleCapturePhoto}>
           <Image source={require("../../../assets/takeapicture.png")} style={styles.captureImage} />
         </TouchableOpacity>
       </View>
-      <FaceOutline />
+
+      <TouchableOpacity 
+  style={styles.iconButton} 
+  onPress={toggleCameraFacing}
+>
+<Ionicons 
+  name={facing === 'back' ? 'camera-reverse-outline' : 'camera-outline'} 
+  size={32} 
+  color="#fff" 
+/>
+
+</TouchableOpacity>
+
+
     </View>
   );
 }
@@ -199,4 +240,34 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
+  overlayImage: {
+    position: "absolute",
+    top: "5%",
+    left: "10%",
+    width: "80%",
+    height: "100%",
+    resizeMode: "contain", 
+  },
+  iconButton: {
+    position: "absolute",
+    top: 30,
+    right: 65,
+    backgroundColor: "rgba(0, 85, 255, 0.7)",
+    padding: 12,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5, // Android sombra
+    shadowColor: "#000", // iOS sombra
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  }
+,  
+  flipButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+  }
+  
 });

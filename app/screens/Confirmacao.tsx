@@ -8,21 +8,48 @@ import {
   ScrollView, 
   SafeAreaView, 
   Alert, 
-  Dimensions 
+  Dimensions, 
+  Linking,
+  Platform,
+  StatusBar,
+  Pressable
 } from "react-native";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Link, router } from "expo-router";
+import { Link, router, useLocalSearchParams } from "expo-router";
 import * as ScreenOrientation from "expo-screen-orientation";
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+import { useRouter } from 'expo-router';
+
+
+// Obtém as dimensões da tela e atualiza com mudanças de orientação
+const useScreenDimensions = () => {
+  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
+  
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setDimensions(window);
+    });
+    
+    return () => subscription.remove();
+  }, []);
+  
+  return dimensions;
+};
 
 export default function Confirmacao() {
   const [fotoDocumentoUri, setFotoDocumentoUri] = useState<string | null>(null);
   const [fotoBiometriaUri, setFotoBiometriaUri] = useState<string | null>(null);
   const [clienteId, setClienteId] = useState<string | null>(null);
-
+  const [nome, setNome] = useState<string | null>(null);
+  const [cpf, setCpf] = useState<string | null>(null);
+  const params = useLocalSearchParams(); 
+  const router = useRouter();
+  const isFromMissingDocs = params?.fromMissingDocs === "true";
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useScreenDimensions();
+  const imageContainerHeight = SCREEN_HEIGHT * (SCREEN_HEIGHT < 700 ? 0.3 : 0.37);
+  
   useEffect(() => {
     const lockOrientation = async () => {
-      // Mantém a tela em modo retrato
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     };
     lockOrientation();
@@ -30,6 +57,11 @@ export default function Confirmacao() {
     carregarImagensECliente();
   }, []);
 
+
+  const handleReiniciar = async () => {
+    await AsyncStorage.setItem('reiniciarColetaBiometria', 'true');
+    router.push('./Documentos');
+  };
   const carregarImagensECliente = async () => {
     try {
       const documento = await AsyncStorage.getItem("documento");
@@ -41,12 +73,24 @@ export default function Confirmacao() {
       if (cliente) {
         const clienteData = JSON.parse(cliente);
         setClienteId(clienteData.id);
+        setCpf(clienteData.cpf);
+        setNome(clienteData.nome);
       }
     } catch (error) {
       console.error("Erro ao carregar imagens e cliente:", error);
     }
   };
 
+  const abrirWhatsApp = () => {
+    const telefone = "1632897402";
+    const mensagem = `Olá, sou ${nome} , CPF: ${cpf} ,Não tenho os documentos necessários, você pode me ajudar?`;
+    const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
+
+    Linking.openURL(url).catch(() => {
+      Alert.alert("Erro", "Não foi possível abrir o WhatsApp.");
+    });
+  };
+  
   const enviarImagens = async () => {
     if (!clienteId) {
       Alert.alert("Erro", "Cliente não encontrado.");
@@ -54,11 +98,14 @@ export default function Confirmacao() {
     }
 
     try {
-      Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
-      await AsyncStorage.removeItem("documento");
-      await AsyncStorage.removeItem("biometria");
-      router.push("./Agradecimento");
-
+      if (isFromMissingDocs) {
+        Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
+        abrirWhatsApp();
+        router.push("./Agradecimento");
+      } else {
+        Alert.alert("Sucesso", "Imagens enviadas com sucesso!");
+        router.push("./Agradecimento");
+      }
     } catch (error) {
       console.error("Erro ao enviar imagens:", error);
       Alert.alert("Erro", "Falha ao enviar imagens.");
@@ -71,13 +118,19 @@ export default function Confirmacao() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
       >
+        {/* Título da Página */}
+        <Text style={styles.pageTitle}>Confirme suas imagens</Text>
+        
         {/* Sessão do Documento */}
         <Text style={styles.sectionTitle}>Coleta do Documento</Text>
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, { height: imageContainerHeight }]}>
           {fotoDocumentoUri ? (
             <Image 
               source={{ uri: fotoDocumentoUri }} 
-              style={styles.documentoImage} 
+              style={[
+                styles.documentoImage,
+                SCREEN_WIDTH < 360 && styles.documentoImageSmall
+              ]}
               resizeMode="contain" 
             />
           ) : (
@@ -87,11 +140,14 @@ export default function Confirmacao() {
 
         {/* Sessão da Biometria */}
         <Text style={styles.sectionTitle}>Coleta da Biometria</Text>
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, { height: imageContainerHeight }]}>
           {fotoBiometriaUri ? (
             <Image 
               source={{ uri: fotoBiometriaUri }} 
-              style={styles.biometriaImage} 
+              style={[
+                styles.biometriaImage,
+                SCREEN_WIDTH < 360 && styles.biometriaImageSmall
+              ]} 
               resizeMode="contain" 
             />
           ) : (
@@ -101,37 +157,70 @@ export default function Confirmacao() {
 
         {/* Botões */}
         <View style={styles.buttonContainer}>
-          <Link href="./Documentos" asChild>
-            <TouchableOpacity style={styles.buttonReiniciar}>
-              <Text style={styles.buttonTextReiniciar}>Reiniciar Coleta</Text>
-            </TouchableOpacity>
-          </Link>
+        <View style={styles.buttonWrapper}>
+  <Pressable
+    onPress={handleReiniciar}
+    style={[
+      styles.buttonReiniciar,
+      SCREEN_WIDTH < 360 && styles.buttonSmall
+    ]}
+  >
+    <Text
+      style={[
+        styles.buttonTextReiniciar,
+        SCREEN_WIDTH < 360 && styles.buttonTextSmall
+      ]}
+    >
+      Reiniciar
+    </Text>
+  </Pressable>
+</View>
 
-          <TouchableOpacity style={styles.buttonConfirmar} onPress={enviarImagens}>
-            <Text style={styles.buttonTextConfirmar}>Confirmar e Enviar</Text>
-          </TouchableOpacity>
+
+          <View style={styles.buttonWrapper}>
+            <TouchableOpacity 
+              style={[
+                styles.buttonConfirmar,
+                SCREEN_WIDTH < 360 && styles.buttonSmall
+              ]} 
+              onPress={enviarImagens}
+            >
+              <Text style={[
+                styles.buttonTextConfirmar,
+                SCREEN_WIDTH < 360 && styles.buttonTextSmall
+              ]}>
+                Confirmar
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-/** Cores oficiais
- *  #0d2730 => Fundo principal
- *  #67bf96 => Destaque/CTA
- *  #FFFFFF => Textos e fundos
- */
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0d2730"
+    backgroundColor: "#0d2730",
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
   },
   scrollView: {
     flex: 1
   },
   scrollViewContent: {
-    paddingVertical: 8,
-    // Não coloquei paddingHorizontal para ocupar largura máxima
+    paddingVertical: 16,
+    paddingBottom: 24,
+    flexGrow: 1
+  },
+  
+  // Título da página
+  pageTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#ffffff",
+    textAlign: "center",
+    marginVertical: 16
   },
 
   // Título de cada seção (Documento / Biometria)
@@ -143,26 +232,37 @@ const styles = StyleSheet.create({
     marginVertical: 10
   },
 
-  // Container que ocupa quase toda a largura e altura "ideal"
+  // Container de imagem com tamanho dinâmico
   imageContainer: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.37,
-    backgroundColor: "#ffffff15", // leve translucidez
+    width: "92%",
+    alignSelf: "center",
+    backgroundColor: "#ffffff15",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    borderRadius: 8,
+    marginBottom: 16,
+    overflow: "hidden"
   },
 
-  // Documento "deitado" (rotacionado 90 graus)
+  // Documento "deitado" (com ajustes para diferentes tamanhos)
   documentoImage: {
-    width: "125%",
-    height: "125%",
+    width: "100%",
+    height: "100%",
     transform: [{ rotate: "90deg" }]
   },
+  documentoImageSmall: {
+    width: "90%",
+    height: "90%"
+  },
 
-  // Biometria normal (ajuste se quiser rotacionar também)
+  // Biometria com ajustes para diferentes tamanhos
   biometriaImage: {
-    width: "100%",
-    height: "100%"
+    width: "90%",
+    height: "90%"
+  },
+  biometriaImageSmall: {
+    width: "85%",
+    height: "85%"
   },
 
   placeholderText: {
@@ -175,38 +275,48 @@ const styles = StyleSheet.create({
   // Container para os botões
   buttonContainer: {
     flexDirection: "row",
-    paddingVertical: 16,
-    // sem margin horizontal para ocupar espaço total
-    justifyContent: "space-around"
+    justifyContent: "center",
+    alignItems: "center",
+    width: "90%",
+    alignSelf: "center",
+    marginTop: 8
+  },
+  buttonWrapper: {
+    flex: 1,
+    paddingHorizontal: 8
   },
   buttonReiniciar: {
     backgroundColor: "#ffffff",
     borderColor: "#67bf96",
     borderWidth: 2,
-    borderRadius: 6,
+    borderRadius: 8,
     paddingVertical: 14,
-    paddingHorizontal: 20,
-    minWidth: 140,
     alignItems: "center",
-    marginRight: 8
+    
+  },
+  buttonConfirmar: {
+    backgroundColor: "#67bf96",
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: "center"
   },
   buttonTextReiniciar: {
     color: "#67bf96",
     fontSize: 16,
     fontWeight: "600"
   },
-  buttonConfirmar: {
-    backgroundColor: "#67bf96",
-    borderRadius: 6,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    minWidth: 140,
-    alignItems: "center",
-    marginLeft: 8
-  },
+  
   buttonTextConfirmar: {
     color: "#0d2730",
     fontSize: 16,
     fontWeight: "600"
+  },
+  
+  // Estilos específicos para telas pequenas
+  buttonSmall: {
+    paddingVertical: 10
+  },
+  buttonTextSmall: {
+    fontSize: 14
   }
 });

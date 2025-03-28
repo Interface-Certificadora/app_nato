@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, ScrollView } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { router } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -35,13 +35,14 @@ export default function ExemploFacial() {
     }, []);
 
     return (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
             <Text style={styles.headerText}>Coleta Facial</Text>
 
             <View style={styles.content}>
                 <View style={styles.textContainer}>
                     <Text style={styles.instruction}>Com uma</Text>
-                    <Text style={styles.neutralExpression}>Expressão NEUTRA,</Text>
+                    <Text style={styles.neutralExpression}>Expressão NEUTRA, E Fundo com cor Uniforme</Text>
                     <Text style={styles.instruction}>
                         Centralize seu rosto dentro da área indicada e siga as instruções na tela.
                     </Text>
@@ -63,6 +64,7 @@ export default function ExemploFacial() {
             </View>
             </View>
         </View>
+        </ScrollView>
     );
 }
 
@@ -120,5 +122,9 @@ const styles = StyleSheet.create({
         position: "absolute",
         bottom: 20, 
         right: -30,
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "center",
     },
 });

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Link} from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -21,6 +21,7 @@ export default function ExemploRG() {
           }, []);
 
   return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Siga o Exemplo Abaixo</Text>
@@ -42,6 +43,7 @@ export default function ExemploRG() {
         </Link>
       </View>
     </View>
+    </ScrollView>
   );
 }
 
@@ -84,5 +86,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     padding: 6,
     marginRight: 12 
-}
+  }, 
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+  },
 });

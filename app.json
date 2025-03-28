@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "refactor-app",
-    "slug": "refactor-app",
+    "name": "NatoID",
+    "slug": "natoid",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -46,7 +46,7 @@
         "API_URL": "https://apinatoapp.redebrasilrp.com.br"
       },
       "eas": {
-        "projectId": "0fe9f0a3-a986-4e21-81d9-605390041e6b"
+        "projectId": "2836a188-911a-4495-8172-7abf85b35c73"
       }
     },
     "owner": "vitiima"

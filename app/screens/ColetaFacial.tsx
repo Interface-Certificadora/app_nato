@@ -17,9 +17,6 @@ export default function ColetaFacial() {
   
 
   useEffect(() => {
-
-    
-
     const lockOrientation = async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
     };
@@ -42,16 +39,7 @@ export default function ColetaFacial() {
   }, [finished]);
 
 
-    const abrirWhatsApp = () => {
-      const telefone = "1632897402";
-      const mensagem = "Olá,Não tenho os documentos necessários, você pode me ajudar?";
-      const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
-  
-      Linking.openURL(url).catch(() => {
-        Alert.alert("Erro", "Não foi possível abrir o WhatsApp.");
-      });
-    };
-    
+   
   const loadImageFromStorage = async () => {
     try {
       const storedImage = await AsyncStorage.getItem("biometria");
@@ -115,10 +103,11 @@ export default function ColetaFacial() {
       const formData = createFormDataFromUri(capturedPhoto, clienteId, "facial");
       await uploadBio(formData);
       console.log("Biometria enviada com sucesso!");
-      if (isFromMissingDocs) {
-        abrirWhatsApp();
-        router.push("./Confirmacao");
-      }else {
+       if (isFromMissingDocs) {
+          router.push({
+          pathname: "./Confirmacao",
+          params: { fromMissingDocs: "true" },
+      });}  else {
         router.push("./Confirmacao");
       }
 
@@ -175,9 +164,6 @@ export default function ColetaFacial() {
   );
 }
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
-
 const styles = StyleSheet.create({
   container: { 
     flex: 1,
@@ -206,7 +192,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     justifyContent: "flex-end",
-  
     paddingBottom: 30,
   },
   buttonContainer: {

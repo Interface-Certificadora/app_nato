@@ -5,40 +5,40 @@ import {
   StyleSheet, 
   Pressable, 
   Image, 
-  Linking, 
   Alert, 
-  ActivityIndicator 
+  ActivityIndicator, 
+  ScrollView
 } from "react-native";
 import { Link, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ScreenOrientation from "expo-screen-orientation";
-
-// Componentes
 import Logo from "@/components/logo";
-
-// Importando as APIs que agora retornam { statusDocumento, motivo }
 import statusBio from "@/api/biometria/status";
 import statusDoc from "@/api/documento/status";
-
 export default function DocumentosScreen() {
-  // Estados que armazenam status de biometria e documento
   const [bioStatus, setBioStatus] = useState<string | null>(null);
   const [docStatus, setDocStatus] = useState<string | null>(null);
-  
-  // Controle de loading
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [reiniciarColetaBiometria, setReiniciarColetaBiometria] = useState(false);
 
+  const verificarReinicioColeta = async () => {
+    try {
+      const valorArmazenado = await AsyncStorage.getItem('reiniciarColetaBiometria');
+      if (valorArmazenado === 'true') {
+        setReiniciarColetaBiometria(true);
+      }
+    } catch (error) {
+      console.error('Erro ao acessar o AsyncStorage:', error);
+    }
+  };
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     return () => {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.DEFAULT);
     };
+    
   }, []);
 
-  /**
-   * Lê as informações do cliente do AsyncStorage e 
-   * chama as funções de status (biometria e documento).
-   */
   async function carregarStatusCliente() {
     setIsLoading(true);
     try {
@@ -55,27 +55,22 @@ export default function DocumentosScreen() {
         setIsLoading(false);
         return;
       }
-
-      // Chama as duas funções em paralelo
       const [bioResponse, docResponse] = await Promise.all([
         statusBio(cliente.id),
         statusDoc(cliente.id),
       ]);
 
-      // Se o fetch falhou, as funções retornam null; tratamos com "ERRO" ou algo parecido
       if (!bioResponse) {
         setBioStatus("ERRO");
       } else {
      
         setBioStatus(bioResponse.status);
-        // Se quiser guardar o motivo, crie outro estado, ex: setBioMotivo(bioResponse.motivo)
       }
 
       if (!docResponse) {
         setDocStatus("ERRO");
       } else {
         setDocStatus(docResponse.status);
-        // Se quiser guardar o motivo, crie outro estado, ex: setDocMotivo(docResponse.motivo)
       }
     } catch (error) {
       console.error("Erro ao buscar status do cliente:", error);
@@ -86,72 +81,73 @@ export default function DocumentosScreen() {
   }
 
   useEffect(() => {
+    verificarReinicioColeta();
+    console.log(reiniciarColetaBiometria);
     carregarStatusCliente();
   }, []);
 
-  /**
-   * Define para qual tela o usuário irá ao clicar no botão de envio do documento,
-   * com base no status da biometria e do documento.
-   */
-
   const missingDoc = () => {
+    if(docStatus === "ENVIADO" || docStatus === "APROVADO") {
+      router.push("./Agradecimento");
+    }else{
     Alert.alert(
       "Atenção",
       "Iremos coletar sua biometria e te encaminhar para o WhatsApp para que possa ser auxiliado."
     );
-  
-    // Passa o parâmetro para indicar que veio da opção "Não tenho documentos"
     router.push({
       pathname: "./ExemploRotacao",
       params: { fromMissingDocs: "true" },
     });
+  }
   };
   
   const determinarProximaPagina = () => {
-    // Ajuste conforme suas regras de negócio
-    if (
-      bioStatus === "AGUARDANDO" ||
-      bioStatus === "REJEITADO" ||
-      docStatus === "AGUARDANDO" ||
-      docStatus === "REJEITADO"
-    ) {
-      return "./ExemploRG";
+    if (reiniciarColetaBiometria) {
+      return "./Regras";
     }
-
-    if (
-      (bioStatus === "ENVIADO" || bioStatus === "APROVADO") &&
-      (docStatus === "AGUARDANDO" || docStatus === "REJEITADO")
-    ) {
-      return "./ExemploRG";
-    }
-
     if (
       (bioStatus === "AGUARDANDO" || bioStatus === "REJEITADO") &&
       (docStatus === "ENVIADO" || docStatus === "APROVADO")
     ) {
       return "./ExemploRotacao";
     }
+  
 
+    if (
+      (docStatus === "AGUARDANDO" || docStatus === "REJEITADO") &&
+      (bioStatus === "ENVIADO" || bioStatus === "APROVADO")
+    ) {
+      return "./ExemploRotacao";
+    }
+  
     if (
       (bioStatus === "ENVIADO" || bioStatus === "APROVADO") &&
       (docStatus === "ENVIADO" || docStatus === "APROVADO")
     ) {
       return "./Agradecimento";
     }
+  
 
+    if (
+      bioStatus === "AGUARDANDO" ||
+      bioStatus === "REJEITADO" ||
+      docStatus === "AGUARDANDO" ||
+      docStatus === "REJEITADO"
+    ) {
+      return "./Regras";
+    }
+  
+  
     console.warn("⚠️ Status inesperado encontrado:", { bioStatus, docStatus });
     return "./Error";
   };
-
-
-
+  
   return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
     <View style={styles.container}>
       <View style={styles.sessionLogo}>
-        <Logo width={100} height={123} />
+        <Logo width={180} height={100} />
       </View>
-
-      {/* Exibe indicador de carregamento enquanto consulta a API */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#23CF5C" />
@@ -189,10 +185,10 @@ export default function DocumentosScreen() {
         </>
       )}
     </View>
+    </ScrollView>
   );
 }
 
-/** Estilos */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -203,10 +199,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   sessionLogo: {
-    resizeMode: "center",
-    overflow: "visible",
-    width: 200,
+    width: "100%",
     alignItems: "center",
+    justifyContent: "center",
   },
   loadingContainer: {
     alignItems: "center",
@@ -280,4 +275,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     backgroundColor: "#FF3B30",
   },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+},
 });

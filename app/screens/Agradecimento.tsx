@@ -1,17 +1,24 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import Logo from "@/components/logo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function DocumentosScreen() {
+
+    const handlePress = async () => {
+        await AsyncStorage.removeItem("documento");
+        await AsyncStorage.removeItem("biometria");
+    };
+
+
     return (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
             <View style={styles.sessionLogo}>
-                <Logo width={100} height={123}/>
+                <Logo width={250} height={200}/>
             </View>
-
-            <Text style={styles.title}>Regras para Foto do Documento</Text>
 
             <View style={styles.warningContainer}>
                 <Text style={styles.warningText}>Concluido!</Text>
@@ -21,12 +28,13 @@ export default function DocumentosScreen() {
 
             <View style={styles.containerBtn}>
                 <Link href="./Logs" asChild>
-                    <Pressable style={styles.btn}>
+                    <Pressable style={styles.btn} onPress={handlePress}>
                         <AntDesign name="arrowright" size={50} color="white" />
                     </Pressable>
                 </Link>
             </View>
         </View>
+        </ScrollView>
     );
 }
 
@@ -67,5 +75,9 @@ const styles = StyleSheet.create({
         padding: 7,
         marginRight: 12
       
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "center",
     },
 });
